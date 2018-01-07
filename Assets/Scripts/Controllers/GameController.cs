@@ -13,7 +13,7 @@ using Avalon.Models.Exceptions;
 namespace Avalon.Controllers
 {
 
-    public class GameController : NetworkBehaviour
+    public class GameController : MonoBehaviour
     {
         //public InputField InputField;
         //public Button SendButton;
@@ -34,91 +34,19 @@ namespace Avalon.Controllers
         public bool SelectionEnabled = false;
         public float AiWaitSec = 3f;
 
+        public NetPlayerController NetPlayerCtr;
+
+        public int LocalPlayerId;
         public GameModel GameModel;
+
 
         private VoteTrackController[] voteTrackControllers;
 
-        #region Standard methods
-
-        public struct MyStruct
+        public void AddCommand(BaseCommand command)
         {
-            public int[] TestArray;
+            NetPlayerCtr.CmdExecuteCommand(command.CmdToString());
         }
 
-        void Start()
-        {
-            Utilities.LogToFile("Program started.", null, false);
-
-            try
-            {
-                GameModel = Persistence.Load("Last.save");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex.Message);
-                GameModel = null;
-            }
-            
-
-            if (GameModel == null || GameModel.GameResult != MissionResult.Unknown)
-            {
-                GameModel = new GameModel(5);
-            }
-            Persistence.Save(GameModel, "Last.save");
-            Subscribe();
-            IOController.GameModel = GameModel;
-            IOController.GameController = this;
-            InitializePlayers();
-            InitializeMissions();
-            InitializeVoteTracks();
-            IOController.Refresh();
-            UpdateView();
-            if (isServer)
-            {
-                StartCoroutine(GenerateAICommands());
-            }
-            Write_ScrollView(GameModel.InitialLog);
-
-            
-
-            //HashSet<Player> playerSet = new HashSet<Player>(GameModel.Players);
-            //int goodCount = GameRules.GetGoodCount(GameModel.Players.Length);
-            //LogicalModel<Player> logicalModel = new LogicalModel<Player>(playerSet, goodCount);
-            //logicalModel.FilterContainsElement(GameModel.LocalPlayer);
-            //Utilities.LogToFile(logicalModel.PossibleTeamsToString());
-        }
-
-        void OnEnable()
-        {
-            Subscribe();
-        }
-
-        void OnDisable()
-        {
-            Unsubscribe();
-        }
-
-        #endregion
-
-        #region Subscription
-
-        private void Subscribe()
-        {
-            if (GameModel != null)
-            {
-                GameModel.CommandExecuted += Model_CommandExecuted;
-            }
-        }
-
-        private void Unsubscribe()
-        {
-            if (GameModel != null)
-            {
-                GameModel.CommandExecuted -= Model_CommandExecuted;
-            }
-        }
-
-        #endregion
 
         #region Initialize methods
 
@@ -184,44 +112,6 @@ namespace Avalon.Controllers
 
         #endregion
 
-        #region ClientRPC
-
-        [ClientRpc]
-        public void RpcReloadModel(String strModel)
-        {
-            ReloadModel(strModel);
-        }
-
-        [ClientRpc]
-        public void RpcCommandAdded(String strModel, int commandId)
-        {
-            int nextCommandId = GameModel.CommandQueue.Count + 1;
-
-            if (commandId < nextCommandId)
-            {
-                Debug.Log("Lost command FOUND (commandId: " + commandId + ")");
-                return;
-            }
-
-            if (commandId > nextCommandId)
-            {
-                Debug.Log("Command LOST (currentId: " + commandId + ")");
-                ReloadModel(strModel);
-                return;
-            }
-
-            ReplaceModel(strModel);
-
-            
-        }
-
-        #endregion
-
-        public void Model_CommandExecuted(object sender, CommandEventArgs e)
-        {
-            BaseCommand command = e.Command;
-            AnimateCommand(command);
-        }
 
         #region Update methods
 
@@ -273,7 +163,6 @@ namespace Avalon.Controllers
             }
         }
 
-
         #endregion
 
         private void AnimateCommand(BaseCommand command)
@@ -319,52 +208,17 @@ namespace Avalon.Controllers
             }
             IOController.Refresh();
             UpdateView();
-            if ((command is EvaluateMissionVote) ||
-                (command is EvaluateTeamVote) ||
-                (command is PickTeamCommand))
-            {
-                if (isServer)
-                {
-                    StartCoroutine(GenerateAICommands());
-                }
-            }
         }
 
         private void ReloadModel(String strModel)
         {
-            ReplaceModel(strModel);
-            IOController.GameModel = GameModel;
             IOController.GameController = this;
             InitializePlayers();
             InitializeMissions();
             InitializeVoteTracks();
             IOController.Refresh();
             UpdateView();
-            if (isServer)
-            {
-                StartCoroutine(GenerateAICommands());
-            }
             Write_ScrollView(GameModel.InitialLog);
-        }
-
-        private void ReplaceModel(String strModel)
-        {
-            Unsubscribe();
-            GameModel = Persistence.ModelFromString(strModel);
-            Subscribe();
-        }
-
-        private IEnumerator GenerateAICommands()
-        {
-            if (GameModel.GamePhase == GamePhase.TeamPicking || GameModel.GamePhase == GamePhase.MissionVoting)
-            {
-                yield return new WaitForSeconds(AiWaitSec);
-            }
-            List<BaseCommand> commands = new List<BaseCommand>();
-            GameModel.Players.Where(player => player.Type == PlayerType.Computer).ToList().
-                ForEach(player => commands.Add(AIModel.TryGenerateAICommand(GameModel, player)));
-            commands.RemoveAll(command => command == null);
-            commands.ForEach(command => GameModel.AddCommand(command));
         }
 
         public void Write_ScrollView(String message)
@@ -381,9 +235,5 @@ namespace Avalon.Controllers
             //Canvas.ForceUpdateCanvases();
             //ScrollView.verticalNormalizedPosition = 0f;
         }
-
-        #region Testing
-
-        #endregion
     }
 }

@@ -12,13 +12,28 @@ namespace Avalon.Controllers
     {
         public int PlayerId;
         public GameModel Model;
+        public NetGameController NetGameCtr;
+        public GameController GameCtr;
 
         public override void OnStartLocalPlayer()
         {
             base.OnStartLocalPlayer();
+
         }
 
         public void ReloadModel(GameModel model)
+        {
+
+        }
+
+        [Command]
+        public void CmdExecuteCommand(String strCommand)
+        {
+            BaseCommand command = ConvertedCommand.CommandFromString(strCommand, Model);
+            NetGameCtr.Model.AddCommand(command);
+        }
+
+        public void LoadModel()
         {
 
         }

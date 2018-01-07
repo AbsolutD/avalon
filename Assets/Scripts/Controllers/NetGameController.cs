@@ -30,19 +30,12 @@ namespace Avalon.Controllers
 
         //public override void 
 
-        [Command]
-        public void CmdExecuteCommand(string strCommand)
-        {
-            BaseCommand command = ConvertedCommand.CommandFromString(strCommand, Model);
-            Model.AddCommand(command);
-        }
-
         [ClientRpc]
         public void RpcCommandExecuted(string strCommand, string strModel)
         {
             NetPlayerController[] players =
-            netManager.client.connection.playerControllers.
-            Select(x => x.gameObject.GetComponent<NetPlayerController>()).ToArray();
+                netManager.client.connection.playerControllers.
+                Select(x => x.gameObject.GetComponent<NetPlayerController>()).ToArray();
             NetPlayerController localPlayer = players.FirstOrDefault(x => x != null && x.isLocalPlayer);
             if (localPlayer != null)
             {

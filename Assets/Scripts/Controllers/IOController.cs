@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Avalon.Models.Commands;
 using Avalon.Models.Exceptions;
+using System;
 
 namespace Avalon.Controllers
 {
@@ -16,24 +17,41 @@ namespace Avalon.Controllers
         public Text SucceedButtonText;
         public Text FailButtonText;
         public Text InfoText;
+        public GameModel GameModel
+        {
+            get
+            {
+                if (GameController != null)
+                {
+                    return GameController.GameModel;
+                }
+                else
+                {
+                    Utilities.LogToFile("GameModel NULL in IOController!");
+                    return null;
+                }
+            }
+        }
+        public GameController GameController;
+
 
         public Player LocalPlayer
         {
             get
             {
-                if (GameModel != null && GameModel.Players != null)
+                if (GameController != null && GameModel != null)
                 {
-                    return GameModel.Players.FirstOrDefault(player => player.Type == PlayerType.LocalHuman);
+                    return GameModel.Players[GameController.LocalPlayerId];
                 }
                 else
                 {
+                    Utilities.LogToFile("GameModel/GameController NULL in IOController!");
                     return null;
                 }
             }
         }
 
-        public GameModel GameModel;
-        public GameController GameController;
+        
 
         public void SucceedButtonClicked()
         {
@@ -85,7 +103,7 @@ namespace Avalon.Controllers
                 }
                 return;
             }
-            GameModel.AddCommand(command);
+            GameController.AddCommand(command);
         }
 
         private void CreateVoteTeamCmd(VoteType teamVote)
@@ -99,7 +117,7 @@ namespace Avalon.Controllers
             {
                 return;
             }
-            GameModel.AddCommand(command);
+            GameController.AddCommand(command);
         }
 
         private void CreatePickTeamCmd()
@@ -120,7 +138,7 @@ namespace Avalon.Controllers
                 }
                 return;
             }
-            GameModel.AddCommand(command);
+            GameController.AddCommand(command);
         }
 
         public void Refresh()
