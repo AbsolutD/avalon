@@ -7,9 +7,8 @@ namespace Avalon.Models
 {
     public enum PlayerType
     {
-        LocalHuman = 0,
+        Human = 0,
         Computer = 1,
-        NetworkHuman = 2
     }
 
     public class Player
@@ -18,6 +17,7 @@ namespace Avalon.Models
         public string Name;
         public CharacterRole Role;
         public PlayerType Type;
+        public const int NameMaxLength = 100;
 
         public override string ToString()
         {

@@ -39,7 +39,6 @@ namespace Avalon.Controllers
         public int LocalPlayerId;
         public GameModel GameModel;
 
-
         private VoteTrackController[] voteTrackControllers;
 
         public void AddCommand(BaseCommand command)
@@ -112,7 +111,6 @@ namespace Avalon.Controllers
 
         #endregion
 
-
         #region Update methods
 
         private void UpdateView()
@@ -126,7 +124,7 @@ namespace Avalon.Controllers
                         PlayerToController[player].IsPicked = false;
                         PlayerToController[player].IsLeader = player == GameModel.CurrentLeader;
                     }
-                    SelectionEnabled = GameModel.CurrentLeader.Type == PlayerType.LocalHuman;
+                    SelectionEnabled = GameModel.CurrentLeader.Type == PlayerType.Human;
                     break;
                 case GamePhase.TeamVoting:
                     break;

@@ -12,7 +12,6 @@ public class AvalonNetManager : NetworkManager {
 
     public NetGameController NetGameCtr;
 
-
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         int playerId = -1;

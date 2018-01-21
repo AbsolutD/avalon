@@ -19,7 +19,8 @@ namespace Avalon.Controllers
 
         public override void OnStartServer()
         {
-            Model = new GameModel();
+            Model = new GameModel(5);
+            TakenId = new HashSet<int>();
             Subscribe();
         }
 

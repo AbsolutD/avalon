@@ -33,25 +33,24 @@ namespace Avalon.Controllers
             }
         }
         public GameController GameController;
-
-
         public Player LocalPlayer
         {
             get
             {
-                if (GameController != null && GameModel != null)
+                if (LocalPlayerCtr != null && GameModel != null)
                 {
-                    return GameModel.Players[GameController.LocalPlayerId];
+                    return GameModel.Players[LocalPlayerCtr.PlayerId];
                 }
                 else
                 {
-                    Utilities.LogToFile("GameModel/GameController NULL in IOController!");
+                    Utilities.LogToFile("GameModel/LocalPlayerController NULL in IOController!");
                     return null;
                 }
             }
         }
+        public BasePlayerController LocalPlayerCtr;
 
-        
+        #region Click Event Handler
 
         public void SucceedButtonClicked()
         {
@@ -73,8 +72,6 @@ namespace Avalon.Controllers
             }
         }
 
-        
-
         public void FailButtonClicked()
         {
             switch (GameModel.GamePhase)
@@ -87,6 +84,10 @@ namespace Avalon.Controllers
                     break;
             }
         }
+
+        #endregion
+
+        #region Create Commands
 
         private void CreateMissionVoteCmd(MissionResult missionVote)
         {
@@ -139,6 +140,40 @@ namespace Avalon.Controllers
                 return;
             }
             GameController.AddCommand(command);
+        }
+
+        #endregion
+
+        #region Subscription
+
+        private void Subscribe()
+        {
+            if (LocalPlayerCtr != null)
+            {
+                LocalPlayerCtr.CommandAdded += PlayerController_CommandAdded;
+            }
+        }
+
+        private void UnSubscribe()
+        {
+            if (LocalPlayerCtr != null)
+            {
+                LocalPlayerCtr.CommandAdded -= PlayerController_CommandAdded;
+            }
+        }
+
+        private void PlayerController_CommandAdded(object sender, ExecCommandEventArgs e)
+        {
+            Refresh();
+        }
+
+        
+
+        #endregion
+
+        private void Start()
+        {
+
         }
 
         public void Refresh()

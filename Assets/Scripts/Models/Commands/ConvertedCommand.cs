@@ -9,8 +9,6 @@ namespace Avalon.Models.Commands
     {
         public static BaseCommand CommandFromString (String strCommand, GameModel model)
         {
-            
-
             if (strCommand.StartsWith("EvaluateGameResult "))
             {
                 String[] split = strCommand.Split(' ');
@@ -76,6 +74,16 @@ namespace Avalon.Models.Commands
                 int playerId = Int32.Parse(split[1]);
                 VoteType teamVote = (VoteType)Int32.Parse(split[2]);
                 VoteTeamCommand command = new VoteTeamCommand(playerId, teamVote);
+                return command;
+            }
+
+            if (strCommand.StartsWith("ChangePlayer "))
+            {
+                String[] split = strCommand.Split(' ');
+                int playerId = Int32.Parse(split[1]);
+                PlayerType playerType = (PlayerType)Int32.Parse(split[2]);
+                String playerName = split[3];
+                ChangePlayerCommand command = new ChangePlayerCommand(playerId, playerType, playerName);
                 return command;
             }
 

@@ -32,7 +32,7 @@ namespace Avalon.Models
         {
             get
             {
-                return Players.FirstOrDefault(player => player.Type == PlayerType.LocalHuman);
+                return Players.FirstOrDefault(player => player.Type == PlayerType.Human);
             }
         }
         public Mission CurrentMission
@@ -71,7 +71,7 @@ namespace Avalon.Models
             for (int i = 0; i < Players.Length; i++)
             {
                 Players[i] = new Player();
-                Players[i].Type = (i == 0 ? PlayerType.LocalHuman : PlayerType.Computer);
+                Players[i].Type = (i == 0 ? PlayerType.Human : PlayerType.Computer);
                 Players[i].Id = i;
                 Players[i].Role = roleList[i];
                 Players[i].Name = GameRules.PlayerNames[i];
